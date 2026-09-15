@@ -1,0 +1,108 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+*.tmp
+.DS_Store
+.atom/
+.history/
+.svn/
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Flutter / Dart / Pub
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/build/
+**/coverage/
+**/doc/api/
+**/pubspec.lock
+**/test-results/
+**/*.lcov
+app.*.symbols
+app.*.map.json
+
+# Local environment and FVM
+**/*.local
+**/.env
+**/.env.*
+!**/.env.example
+**/.fvm/flutter_sdk
+
+# Android
+**/android/.gradle/
+**/android/.cxx/
+**/android/captures/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/android/**/*.keystore
+**/android/**/*.jks
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+
+# iOS / macOS / Xcode
+**/.build/
+**/.buildlog/
+**/.swiftpm/
+**/DerivedData/
+**/Pods/
+**/.symlinks/
+**/xcuserdata/
+**/*.xcuserstate
+**/*.xccheckout
+**/*.xcscmblueprint
+**/*.dSYM/
+**/*.xcarchive/
+**/*.ipa
+**/ios/Runner.xcworkspace/
+**/macos/Runner.xcworkspace/
+**/Flutter/.last_build_id
+**/Flutter/App.framework/
+**/Flutter/Flutter.framework/
+**/Flutter/Flutter.podspec
+**/Flutter/Generated.xcconfig
+**/Flutter/ephemeral/
+**/Flutter/app.flx
+**/Flutter/app.zip
+**/Flutter/flutter_assets/
+**/Flutter/flutter_export_environment.sh
+**/Runner/GeneratedPluginRegistrant.*
+
+# Xcode legacy user state
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+!default.mode1v3
+!default.mode2v3
+!default.pbxuser
+!default.perspectivev3
+
+# Windows
+**/windows/flutter/ephemeral/
+**/windows/*.suo
+**/windows/*.user
+**/windows/*.userosscache
+**/windows/*.sln.docstates
+**/windows/x64/
+**/windows/x86/
+**/windows/*.[Cc]ache
+!**/windows/*.[Cc]ache/
+
+# Linux
+**/linux/flutter/ephemeral/
