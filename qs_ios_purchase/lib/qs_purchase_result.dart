@@ -9,32 +9,28 @@ class QsPurchaseResult {
     required this.originalSubscriptionDate,
     required this.price,
   });
-  late final QsPurchaseStatus? status;
-  late final String? errorMessage;
-  late final String? productID;
-  late final String? transactionID;
-  late final String? originalTransactionID;
-  late final String? subscriptionDate;
-  late final String? originalSubscriptionDate;
-  late final String? price;
 
-  QsPurchaseResult.fromJson(Map<String, dynamic> json) {
-    try {
-      status = QsPurchaseStatus.values.firstWhere(
-        (element) => element.name == json['status'],
-      );
-    } catch (_) {
-      status = null;
-    }
-
-    errorMessage = json['errorMessage'];
-    productID = json['productID'];
-    transactionID = json['transactionID'];
-    originalTransactionID = json['originalTransactionID'];
-    subscriptionDate = json['subscriptionDate'];
-    originalSubscriptionDate = json['originalSubscriptionDate'];
-    price = json['price'];
+  factory QsPurchaseResult.fromJson(Map<String, dynamic> json) {
+    return QsPurchaseResult(
+      status: _purchaseStatusByName(json['status']),
+      errorMessage: json['errorMessage'] as String?,
+      productID: json['productID'] as String?,
+      transactionID: json['transactionID'] as String?,
+      originalTransactionID: json['originalTransactionID'] as String?,
+      subscriptionDate: json['subscriptionDate'] as String?,
+      originalSubscriptionDate: json['originalSubscriptionDate'] as String?,
+      price: json['price'] as String?,
+    );
   }
+
+  final QsPurchaseStatus? status;
+  final String? errorMessage;
+  final String? productID;
+  final String? transactionID;
+  final String? originalTransactionID;
+  final String? subscriptionDate;
+  final String? originalSubscriptionDate;
+  final String? price;
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -51,3 +47,11 @@ class QsPurchaseResult {
 }
 
 enum QsPurchaseStatus { success, error, cancel }
+
+QsPurchaseStatus? _purchaseStatusByName(Object? name) {
+  if (name is! String) return null;
+  for (final status in QsPurchaseStatus.values) {
+    if (status.name == name) return status;
+  }
+  return null;
+}

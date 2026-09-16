@@ -1,6 +1,5 @@
-import 'package:flutter/services.dart';
+import 'qs_purchase_event_channels.dart';
 
 class QsVipStream {
-  static const EventChannel _channel = EventChannel("qs_ios_purchase/vip");
-  static Stream<dynamic> get vipStream => _channel.receiveBroadcastStream();
+  static Stream<bool> get vipStream => QsPurchaseEventChannels.vipStream;
 }

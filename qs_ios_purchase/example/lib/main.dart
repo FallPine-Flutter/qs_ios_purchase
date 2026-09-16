@@ -42,6 +42,10 @@ class _MyAppState extends State<MyApp> {
           if (!mounted) return;
           setState(() => _message = 'Auto renew cancelled: $transactionId');
         },
+        onCancelFreeTrialEveryTime: () {
+          if (!mounted) return;
+          setState(() => _message = 'Free trial cancellation detected');
+        },
       );
       if (!mounted) return;
       setState(() => _message = 'Initialized');

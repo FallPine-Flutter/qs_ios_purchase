@@ -17,24 +17,54 @@ class QsProductDetail {
     required this.paymentMode,
     required this.isEligibleForIntroOffer, // 是否能享受优惠
   });
-  late final String id;
-  late final QsProductType? productType;
-  late final double? price;
-  late final String? currencyPrice;
-  late final double? discountPrice;
-  late final String? discountCurrencyPrice;
-  late final int? discountRate;
-  late final int? trialPeriodValue;
-  late final QsPeriodUnit? trialPeriodUnit;
-  late final int? subscriptionPeriodValue;
-  late final QsPeriodUnit? subscriptionPeriodUnit;
-  late final String? languageCode;
-  late final String? regionCode;
-  late final String? weekAveragePrice;
-  late final QsPaymentMode? paymentMode;
-  late final bool isEligibleForIntroOffer; // 是否能享受优惠
 
-// 是否免费试用
+  factory QsProductDetail.fromJson(Map<String, dynamic> json) {
+    final eligibility = json['isEligibleForIntroOffer'];
+    return QsProductDetail(
+      id: json['id'] as String,
+      productType: _enumByName(QsProductType.values, json['productType']),
+      price: (json['price'] as num?)?.toDouble(),
+      currencyPrice: json['currencyPrice'] as String?,
+      discountPrice: (json['discountPrice'] as num?)?.toDouble(),
+      discountCurrencyPrice: json['discountCurrencyPrice'] as String?,
+      discountRate: (json['discountRate'] as num?)?.toInt(),
+      trialPeriodValue: (json['trialPeriodValue'] as num?)?.toInt(),
+      trialPeriodUnit: _enumByName(
+        QsPeriodUnit.values,
+        json['trialPeriodUnit'],
+      ),
+      subscriptionPeriodValue: (json['subscriptionPeriodValue'] as num?)
+          ?.toInt(),
+      subscriptionPeriodUnit: _enumByName(
+        QsPeriodUnit.values,
+        json['subscriptionPeriodUnit'],
+      ),
+      languageCode: json['languageCode'] as String?,
+      regionCode: json['regionCode'] as String?,
+      weekAveragePrice: json['weekAveragePrice'] as String?,
+      paymentMode: _enumByName(QsPaymentMode.values, json['paymentMode']),
+      isEligibleForIntroOffer: eligibility == true || eligibility == 'true',
+    );
+  }
+
+  final String id;
+  final QsProductType? productType;
+  final double? price;
+  final String? currencyPrice;
+  final double? discountPrice;
+  final String? discountCurrencyPrice;
+  final int? discountRate;
+  final int? trialPeriodValue;
+  final QsPeriodUnit? trialPeriodUnit;
+  final int? subscriptionPeriodValue;
+  final QsPeriodUnit? subscriptionPeriodUnit;
+  final String? languageCode;
+  final String? regionCode;
+  final String? weekAveragePrice;
+  final QsPaymentMode? paymentMode;
+  final bool isEligibleForIntroOffer; // 是否能享受优惠
+
+  // 是否免费试用
   bool get isFreeTrial {
     return paymentMode == QsPaymentMode.freeTrial && isEligibleForIntroOffer;
   }
@@ -42,55 +72,6 @@ class QsProductDetail {
   // 是否折扣
   bool get isDiscount {
     return discountPrice != null && isEligibleForIntroOffer;
-  }
-
-  QsProductDetail.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    try {
-      productType = QsProductType.values.firstWhere(
-        (element) => element.name == json['productType'],
-      );
-    } catch (_) {
-      productType = null;
-    }
-
-    price = json['price'];
-    currencyPrice = json['currencyPrice'];
-    discountPrice = json['discountPrice'];
-    discountCurrencyPrice = json['discountCurrencyPrice'];
-    discountRate = json['discountRate'];
-    trialPeriodValue = json['trialPeriodValue'];
-    languageCode = json['languageCode'];
-    regionCode = json['regionCode'];
-    weekAveragePrice = json['weekAveragePrice'];
-    isEligibleForIntroOffer =
-        json['isEligibleForIntroOffer'] == 'true'; // 是否能享受优惠
-
-    try {
-      trialPeriodUnit = QsPeriodUnit.values.firstWhere(
-        (element) => element.name == json['trialPeriodUnit'],
-      );
-    } catch (_) {
-      trialPeriodUnit = null;
-    }
-
-    subscriptionPeriodValue = json['subscriptionPeriodValue'];
-
-    try {
-      subscriptionPeriodUnit = QsPeriodUnit.values.firstWhere(
-        (element) => element.name == json['subscriptionPeriodUnit'],
-      );
-    } catch (_) {
-      subscriptionPeriodUnit = null;
-    }
-
-    try {
-      paymentMode = QsPaymentMode.values.firstWhere(
-        (element) => element.name == json['paymentMode'],
-      );
-    } catch (_) {
-      paymentMode = null;
-    }
   }
 
   Map<String, dynamic> toJson() {
@@ -122,3 +103,11 @@ enum QsProductType { consumable, nonConsumable, nonRenewable, autoRenewable }
 enum QsPeriodUnit { day, week, month, year }
 
 enum QsPaymentMode { payAsYouGo, payUpFront, freeTrial }
+
+T? _enumByName<T extends Enum>(List<T> values, Object? name) {
+  if (name is! String) return null;
+  for (final value in values) {
+    if (value.name == name) return value;
+  }
+  return null;
+}

@@ -3,6 +3,9 @@ import 'package:qs_ios_purchase/qs_purchase_result.dart';
 import 'qs_product_detail.dart';
 import 'qs_ios_purchase_platform_interface.dart';
 
+export 'qs_product_detail.dart';
+export 'qs_purchase_result.dart';
+
 class QsIosPurchase {
   /// Func
   /// 初始化

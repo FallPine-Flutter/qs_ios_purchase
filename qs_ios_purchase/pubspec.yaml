@@ -1,6 +1,6 @@
 name: qs_ios_purchase
 description: "一个iOS Storekit2内购插件"
-version: 1.0.6
+version: 1.0.7
 homepage: "https://github.com/fallpine/qs_ios_purchase"
 
 environment:

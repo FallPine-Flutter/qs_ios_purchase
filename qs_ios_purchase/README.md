@@ -3,6 +3,8 @@
 `qs_ios_purchase` 是一个基于 iOS StoreKit 2 的 Flutter 内购插件，封装了商品查询、购买、恢复购买、交易校验、历史交易判断，以及 VIP、取消免费试用、取消自动续订等事件监听能力。
 
 > 当前插件仅支持 iOS，最低系统版本为 iOS 15.0。
+>
+> 当前文档对应插件版本 `1.0.7`，底层依赖 `QSInAppPurchase 1.3.0`。
 
 ## 功能特性
 
@@ -21,7 +23,7 @@
 
 ```yaml
 dependencies:
-  qs_ios_purchase: ^1.0.6
+  qs_ios_purchase: ^1.0.7
 ```
 
 如果需要本地调试，可以使用路径依赖：
@@ -45,15 +47,34 @@ flutter pub get
 3. 确认项目已经启用 In-App Purchase 能力。
 4. 使用真机、Sandbox 账号或 TestFlight 测试完整内购流程。
 
+## 引入
+
+只需导入插件主入口即可使用 `QsIosPurchase`、`QsProductDetail`、`QsPurchaseResult` 及其相关枚举：
+
+```dart
+import 'package:qs_ios_purchase/qs_ios_purchase.dart';
+```
+
+## API 总览
+
+| API | 返回值 | 说明 |
+| --- | --- | --- |
+| `initialize(...)` | `Future<void>` | 注册原生监听并订阅四类事件回调 |
+| `getProducts(productIds: ...)` | `Future<List<QsProductDetail>>` | 获取指定商品的详情 |
+| `requestPurchase(productId: ...)` | `Future<QsPurchaseResult>` | 发起购买 |
+| `restorePurchase()` | `Future<QsPurchaseResult>` | 恢复购买 |
+| `checkTransactions()` | `Future<QsPurchaseResult?>` | 校验当前是否存在有效交易 |
+| `hasHistoryTransactions()` | `Future<bool>` | 判断当前账号是否存在历史交易 |
+| `handleCancelAutoRenewFailure(id: ...)` | `Future<void>` | 上报取消自动续订事件处理失败 |
+| `handleCancelFreeTrialFailure(id: ...)` | `Future<void>` | 上报取消免费试用事件处理失败 |
+
 ## 基础使用
 
 ### 1. 初始化监听
 
-建议在应用启动后先调用 `initialize`。该方法会注册原生 StoreKit 相关监听，后续 VIP 状态和取消订阅相关事件会通过回调返回。
+如果业务需要接收 VIP 状态或取消订阅事件，建议在应用启动后调用 `initialize`。重复调用时，插件会先取消旧的 Dart 事件订阅，再注册新的回调。
 
 ```dart
-import 'package:qs_ios_purchase/qs_ios_purchase.dart';
-
 Future<void> initPurchase() async {
   await QsIosPurchase.initialize(
     onVipChange: (isVip) {
@@ -76,6 +97,14 @@ Future<void> initPurchase() async {
 }
 ```
 
+回调参数说明：
+
+- `onVipChange`：返回最新 VIP 状态，参数类型为 `bool`。
+- `onCancelFreeTrial`：返回取消免费试用对应的交易 ID。
+- `onCancelAutoRenew`：返回取消自动续订对应的交易 ID。
+- `onCancelFreeTrialEveryTime`：每次检测到取消免费试用时触发，不携带参数。
+- 原生事件的类型不符合约定时，VIP、取消免费试用和取消自动续订事件会被忽略。
+
 ### 2. 获取商品列表
 
 ```dart
@@ -91,7 +120,7 @@ for (final product in products) {
 }
 ```
 
-`getProducts` 成功时返回 `List<QsProductDetail>`，失败时会抛出 `PlatformException`。
+`getProducts` 成功时返回 `List<QsProductDetail>`；原生侧返回错误信息或平台调用失败时会抛出 `PlatformException`。
 
 ### 3. 发起购买
 
@@ -115,6 +144,8 @@ switch (result.status) {
 ```
 
 购买成功后，返回结果中会包含商品 ID、交易 ID、原始交易 ID、订阅时间、原始订阅时间和价格等信息。
+
+`requestPurchase` 会从最近一次 `getProducts` 获取的商品中查找目标商品。找不到商品时返回 `QsPurchaseStatus.error`，不会自动重新查询商品。
 
 ### 4. 恢复购买
 
@@ -224,9 +255,11 @@ await QsIosPurchase.handleCancelFreeTrialFailure(id: transactionId);
 
 ## 注意事项
 
-- 请先调用 `initialize`，再执行购买、恢复购买或交易校验相关逻辑。
+- `initialize` 用于注册事件监听；需要接收 VIP 或取消订阅事件时，应在相关业务开始前完成初始化。
 - 商品 ID 必须与 App Store Connect 中配置的商品 ID 完全一致。
 - StoreKit 2 需要 iOS 15.0 及以上系统。
 - 内购流程建议在真机、Sandbox 账号和 TestFlight 环境中完整验证。
-- 购买接口会先从已获取的商品中查找对应商品，建议购买前先调用 `getProducts`。
+- 购买接口会从已获取的商品中查找对应商品，购买前必须先调用 `getProducts` 获取目标商品。
+- `getProducts` 或方法通道调用失败时可能抛出 `PlatformException`；购买、恢复购买和交易校验的业务结果通过 `QsPurchaseResult.status` 返回。
+- `checkTransactions` 的公开返回类型允许为空；当前默认 MethodChannel 实现会在无有效结果时返回 `error` 状态结果。
 - 业务侧收到取消免费试用或取消自动续订事件后，如果处理失败，请调用对应的补偿方法，便于后续重新处理。

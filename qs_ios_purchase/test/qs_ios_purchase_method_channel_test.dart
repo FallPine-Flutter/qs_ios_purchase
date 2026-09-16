@@ -1,8 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qs_ios_purchase/qs_ios_purchase.dart';
 import 'package:qs_ios_purchase/qs_ios_purchase_method_channel.dart';
-import 'package:qs_ios_purchase/qs_product_detail.dart';
-import 'package:qs_ios_purchase/qs_purchase_result.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +13,9 @@ void main() {
   );
   const MethodChannel cancelAutoRenewChannel = MethodChannel(
     'qs_ios_purchase/cancel_auto_renew',
+  );
+  const MethodChannel cancelFreeTrialEveryTimeChannel = MethodChannel(
+    'qs_ios_purchase/cancel_free_trial_every_time_stream',
   );
 
   late MethodChannelQsIosPurchase plugin;
@@ -36,6 +38,11 @@ void main() {
           cancelAutoRenewChannel,
           handleEventChannelCall,
         );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          cancelFreeTrialEveryTimeChannel,
+          handleEventChannelCall,
+        );
   });
 
   tearDown(() {
@@ -47,6 +54,8 @@ void main() {
         .setMockMethodCallHandler(cancelFreeTrialChannel, null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(cancelAutoRenewChannel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(cancelFreeTrialEveryTimeChannel, null);
   });
 
   void mockNative(Future<dynamic> Function(MethodCall call) handler) {
@@ -55,6 +64,19 @@ void main() {
           calls.add(call);
           return handler(call);
         });
+  }
+
+  Future<void> emitEvent({
+    required MethodChannel channel,
+    required Object? event,
+  }) async {
+    await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .handlePlatformMessage(
+          channel.name,
+          const StandardMethodCodec().encodeSuccessEnvelope(event),
+          (_) {},
+        );
+    await Future<void>.delayed(Duration.zero);
   }
 
   test(
@@ -78,6 +100,53 @@ void main() {
       expect(calls.map((call) => call.method), ['initialize', 'initialize']);
     },
   );
+
+  test('initialize forwards valid typed events to callbacks', () async {
+    mockNative((call) async => null);
+    final vipEvents = <bool>[];
+    final freeTrialEvents = <String>[];
+    final autoRenewEvents = <String>[];
+    var everyTimeEventCount = 0;
+
+    await plugin.initialize(
+      onVipChange: vipEvents.add,
+      onCancelFreeTrial: freeTrialEvents.add,
+      onCancelAutoRenew: autoRenewEvents.add,
+      onCancelFreeTrialEveryTime: () => everyTimeEventCount++,
+    );
+
+    await emitEvent(channel: vipChannel, event: true);
+    await emitEvent(channel: cancelFreeTrialChannel, event: 'tx_trial');
+    await emitEvent(channel: cancelAutoRenewChannel, event: 'tx_auto');
+    await emitEvent(channel: cancelFreeTrialEveryTimeChannel, event: null);
+
+    expect(vipEvents, [true]);
+    expect(freeTrialEvents, ['tx_trial']);
+    expect(autoRenewEvents, ['tx_auto']);
+    expect(everyTimeEventCount, 1);
+  });
+
+  test('typed event streams ignore invalid payload types', () async {
+    mockNative((call) async => null);
+    final vipEvents = <bool>[];
+    final freeTrialEvents = <String>[];
+    final autoRenewEvents = <String>[];
+
+    await plugin.initialize(
+      onVipChange: vipEvents.add,
+      onCancelFreeTrial: freeTrialEvents.add,
+      onCancelAutoRenew: autoRenewEvents.add,
+      onCancelFreeTrialEveryTime: () {},
+    );
+
+    await emitEvent(channel: vipChannel, event: 'true');
+    await emitEvent(channel: cancelFreeTrialChannel, event: false);
+    await emitEvent(channel: cancelAutoRenewChannel, event: 1);
+
+    expect(vipEvents, isEmpty);
+    expect(freeTrialEvents, isEmpty);
+    expect(autoRenewEvents, isEmpty);
+  });
 
   test('getProducts parses product details', () async {
     mockNative((call) async {

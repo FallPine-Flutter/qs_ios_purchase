@@ -1,9 +1,6 @@
-import 'package:flutter/services.dart';
+import 'qs_purchase_event_channels.dart';
 
 class QsCancelFreeTrialStream {
-  static const EventChannel _channel = EventChannel(
-    "qs_ios_purchase/cancel_free_trial",
-  );
-  static Stream<dynamic> get cancelFreeTrialStream =>
-      _channel.receiveBroadcastStream();
+  static Stream<String> get cancelFreeTrialStream =>
+      QsPurchaseEventChannels.cancelFreeTrialStream;
 }

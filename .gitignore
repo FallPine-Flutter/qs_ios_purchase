@@ -34,6 +34,11 @@
 app.*.symbols
 app.*.map.json
 
+# Bundled Flutter plugin example dependency resolution
+**/example/ios/Podfile
+**/example/ios/Flutter/Debug.xcconfig
+**/example/ios/Flutter/Release.xcconfig
+
 # Local environment and FVM
 **/*.local
 **/.env

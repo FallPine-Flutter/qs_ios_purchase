@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'qs_ios_purchase'
-  s.version          = '1.0.5'
+  s.version          = '1.0.7'
   s.summary          = 'A Flutter plugin for iOS StoreKit 2 purchases.'
   s.description      = <<-DESC
 A Flutter plugin for iOS StoreKit 2 purchases, subscriptions, restore flows,

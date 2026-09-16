@@ -14,10 +14,10 @@ import 'package:qs_ios_purchase/qs_ios_purchase.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('hasHistoryTransactions returns a count', (
+  testWidgets('hasHistoryTransactions returns a boolean', (
     WidgetTester tester,
   ) async {
-    final count = await QsIosPurchase.hasHistoryTransactions();
-    expect(count, greaterThanOrEqualTo(0));
+    final hasHistory = await QsIosPurchase.hasHistoryTransactions();
+    expect(hasHistory, isA<bool>());
   });
 }

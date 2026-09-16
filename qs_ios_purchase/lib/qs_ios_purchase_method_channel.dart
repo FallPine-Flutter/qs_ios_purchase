@@ -17,9 +17,9 @@ class MethodChannelQsIosPurchase extends QsIosPurchasePlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('qs_ios_purchase');
 
-  StreamSubscription<dynamic>? _vipSubscription;
-  StreamSubscription<dynamic>? _cancelFreeTrialSubscription;
-  StreamSubscription<dynamic>? _cancelAutoRenewSubscription;
+  StreamSubscription<bool>? _vipSubscription;
+  StreamSubscription<String>? _cancelFreeTrialSubscription;
+  StreamSubscription<String>? _cancelAutoRenewSubscription;
   StreamSubscription<void>? _cancelFreeTrialEveryTimeSubscription;
 
   /// 初始化
@@ -35,25 +35,13 @@ class MethodChannelQsIosPurchase extends QsIosPurchasePlatform {
     await _cancelAutoRenewSubscription?.cancel();
     await _cancelFreeTrialEveryTimeSubscription?.cancel();
 
-    _vipSubscription = QsVipStream.vipStream.listen((event) {
-      if (event is bool) {
-        onVipChange(event);
-      }
-    });
+    _vipSubscription = QsVipStream.vipStream.listen(onVipChange);
 
     _cancelFreeTrialSubscription = QsCancelFreeTrialStream.cancelFreeTrialStream
-        .listen((event) {
-          if (event is String) {
-            onCancelFreeTrial(event);
-          }
-        });
+        .listen(onCancelFreeTrial);
 
     _cancelAutoRenewSubscription = QsCancelAutoRenewStream.cancelAutoRenewStream
-        .listen((event) {
-          if (event is String) {
-            onCancelAutoRenew(event);
-          }
-        });
+        .listen(onCancelAutoRenew);
 
     _cancelFreeTrialEveryTimeSubscription = QsCancelFreeTrialEveryTimeStream
         .cancelFreeTrialEveryTimeStream

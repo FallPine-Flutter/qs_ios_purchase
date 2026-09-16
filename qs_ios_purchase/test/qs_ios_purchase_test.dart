@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:qs_ios_purchase/qs_ios_purchase.dart';
 import 'package:qs_ios_purchase/qs_ios_purchase_method_channel.dart';
 import 'package:qs_ios_purchase/qs_ios_purchase_platform_interface.dart';
-import 'package:qs_ios_purchase/qs_product_detail.dart';
-import 'package:qs_ios_purchase/qs_purchase_result.dart';
 
 class MockQsIosPurchasePlatform
     with MockPlatformInterfaceMixin
